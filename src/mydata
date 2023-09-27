@@ -1,0 +1,339 @@
+import React, { useState } from "react";
+import TextField from "@mui/material/TextField";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import Button from "@mui/material/Button";
+import axios from "axios";
+
+export default function Add_User() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const handleChange = (e) => {
+    setGender(e.target.value);
+  };
+  const onSubmit = () => {
+    if (name === "" || name === null || name === undefined) {
+      alert("Enter Name");
+      return false;
+    }
+    if (email === "" || email === null || email === undefined) {
+      alert("Enter Email");
+      return false;
+    }
+    if (address === "" || address === null || address === undefined) {
+      alert("Enter Address");
+      return false;
+    }
+    if (gender === "" || gender === null || gender === undefined) {
+      alert("Enter Gender");
+      return false;
+    }
+    if (age === "" || age === null || age === undefined) {
+      alert("Enter Age");
+      return false;
+    }
+    if (phone === "" || phone === null || phone === undefined) {
+      alert("Enter Phone Number");
+      return false;
+    }
+
+    let data = {
+      name: name,
+      email: email,
+      address: address,
+      gender: gender,
+      age: age,
+      phone: phone,
+    };
+
+    // console.log(data);
+    axios
+      .post("http://localhost:8080/api/create", data)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  return (
+    <>
+      <div className="form">
+        <div className="row">
+          <div className="col-sm-12">
+            <h1>Add User</h1>
+          </div>
+
+          <div className="col-sm-6">
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Name"
+              variant="outlined"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="col-sm-6">
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Email"
+              variant="outlined"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="col-sm-12 mt-2">
+            <TextField
+              fullWidth
+              id="outlined-multiline-static"
+              label="Address"
+              multiline
+              rows={4}
+              defaultValue=""
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </div>
+          <div className="col-sm-12 mt-2">
+            <FormControl>
+              <FormLabel id="demo-row-radio-buttons-group-label">
+                Gender
+              </FormLabel>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                onChange={handleChange}
+              >
+                <FormControlLabel
+                  value="female"
+                  control={<Radio />}
+                  label="Female"
+                />
+                <FormControlLabel
+                  value="male"
+                  control={<Radio />}
+                  label="Male"
+                />
+                <FormControlLabel
+                  value="other"
+                  control={<Radio />}
+                  label="Other"
+                />
+              </RadioGroup>
+            </FormControl>
+          </div>
+          <div className="col-sm-6 mt-2">
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Age"
+              variant="outlined"
+              onChange={(e) => setAge(e.target.value)}
+            />
+          </div>
+          <div className="col-sm-6 mt-2">
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Phone Number"
+              variant="outlined"
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="col-sm-12 mt-3 text-center">
+            <Button variant="contained" color="primary" onClick={onSubmit}>
+              Submit
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+-------------------------------
+
+const express = require("express");
+const bodyParser = require("body-parser");
+const app = express();
+const mysql = require("mysql");
+const cors = require("cors");
+app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: true,
+  })
+);
+app.options("*", cors());
+
+const conn = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "crud",
+});
+
+conn.connect((error) => {
+  if (error) throw error;
+  console.log("MYSQL CONNECTED");
+});
+
+app.get("/api/users", (req, res) => {
+  let sql = "select * from user";
+  let query = conn.query(sql, (error, result) => {
+    if (error) throw error;
+    data = { success: true, data: result };
+    res.send(data);
+  });
+});
+
+app.post("/api/create", (req, res) => {
+  let data = {
+    name: req.body.name,
+    email: req.body.email,
+    address: req.body.address,
+    gender: req.body.gender,
+    age: req.body.age,
+    phone: req.body.phone,
+  };
+  let sql = "INSERT INTO user SET ?";
+  let query = conn.query(sql, data, (error, result) => {
+    if (error) throw error;
+    res.send(
+      JSON.stringify({
+        status: 200,
+        error: null,
+        response: "New record saved",
+      })
+    );
+  });
+});
+
+app.listen(8080, () => {
+  console.log("Server Started on Port 8080");
+});
+
+//-------------------------------------------------
+
+import "./App.css";
+import Home from "./component/Home";
+import About from "./component/About";
+import Contact from "./component/Contact";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./component/Layout";
+import User from "./component/User";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="user/:id" element={<User />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
+//-------------------------------------------------------
+
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function Home() {
+  const [val, setValue] = useState("");
+  const [arr, setArr] = useState(["a", "b"]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const [user, setUser] = useState([]);
+
+  const getUser = () => {
+    axios
+      .get("https://dummyjson.com/users")
+      .then(function (response) {
+        // handle success
+        // console.log(response);
+        setUser(response.data.users);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .finally(function () {
+        // always executed
+      });
+  };
+
+  const goToUser = (id) => {
+    // console.log(id);
+    navigate("/user/" + id);
+  };
+
+  return (
+    <div>
+      <h1>{val}</h1>
+
+      {/* <ul>
+        {
+          arr.map((item) => (
+            <li key={item}>{item}</li>
+            ))
+          }
+      </ul> */}
+
+      {/* <input
+        type="text"
+        value={val}
+        onChange={(e) => {
+          setValue(e.target.value);
+          console.log(e.target.value);
+        }}
+      /> */}
+
+      <table>
+        <thead>
+          <tr>
+            <th>SL. No.</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {user.map((item, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{item.firstName}</td>
+              <td>{item.lastName}</td>
+              <td>
+                <button type="button" onClick={() => goToUser(item.id)}>
+                  View
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

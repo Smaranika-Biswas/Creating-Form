@@ -1,0 +1,12 @@
+.form-container {
+  margin: 20px;
+  padding: 20px;
+  display: flex;
+  margin-left: 270px;
+  margin-top: 90px;
+  width: 780px;
+  height: 400px;
+  border-radius: 20px;
+  background-color: #bfe4f8;
+  background-color: #f4e7fc;
+}
